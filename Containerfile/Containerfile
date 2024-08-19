@@ -1,0 +1,14 @@
+# Use a imagem oficial do OpenJDK 17 da Red Hat
+FROM registry.access.redhat.com/ubi8/openjdk-17:latest
+
+# Define o diretório de trabalho dentro do container
+WORKDIR /app
+
+# Copie o jar do aplicativo para dentro do container
+COPY target/demo-0.0.1-SNAPSHOT.jar /app/demo.jar
+
+# Exponha a porta 8080 (ou a porta que sua aplicação usa)
+EXPOSE 8080
+
+# Defina o comando de inicialização do container
+ENTRYPOINT ["java", "-jar", "/app/demo.jar"]
