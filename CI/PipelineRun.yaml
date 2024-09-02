@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: springboot-java-pipelinerun
+spec:
+  pipelineRef:
+    name: springboot-java-pipeline
+  params:
+    - name: APP_NAME
+      value: springboot-app
+    - name: GIT_REPO
+      value: 'https://github.com/osvaldormelo/springboot-ci-cd-example.git'
+    - name: IMAGE_NAME
+      value: 'quay.io/rhn_support_omelo/spring-boot-app:latest'
+    - name: GIT_REVISION
+      value: main
+    - name: CONTEXT
+      value: Containerfile/ 
+    - name: DOCKERFILE
+      value: Containerfile  
+  workspaces:
+    - name: workspace
+      persistentVolumeClaim:
+        claimName: tekton-workspace-pvc
+    - name: dockerconfig
+      secret:
+        secretName: my-quay-secret
+    - name: maven-settings
+      emptyDir: {} 

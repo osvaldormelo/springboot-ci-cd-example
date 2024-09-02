@@ -1,0 +1,59 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: s2i-java-custom
+  namespace: pipeline
+spec:
+  params:
+    - default: latest
+      name: VERSION
+      type: string
+    - default: .
+      name: PATH_CONTEXT
+      type: string
+    - name: IMAGE
+      type: string
+    - default: registry.redhat.io/ubi8/podman
+      name: BUILDER_IMAGE
+      type: string
+    - default: 'true'
+      name: TLSVERIFY
+      type: string
+    - default: 'false'
+      name: SKIP_PUSH
+      type: string
+  steps:
+    - computeResources: {}
+      image: registry.access.redhat.com/ubi8/ubi-minimal
+      name: debug-dockerconfig
+      script: |
+        #!/bin/bash
+        echo "Listing contents of /workspace/dockerconfig:"
+        ls -la /workspace/dockerconfig
+    - computeResources: {}
+      image: $(params.BUILDER_IMAGE)
+      name: build-and-push
+      script: |
+        #!/bin/sh
+        # Aponta diretamente para o arquivo .dockerconfigjson
+        export DOCKER_CONFIG=$(workspaces.dockerconfig.path)
+
+        # Constrói a imagem com podman
+        podman build --tls-verify=$(params.TLSVERIFY) \
+          -f /gen-source/Dockerfile.gen -t $(params.IMAGE) .
+
+        # Se a opção de pular o push estiver ativada, sai do script
+        if [ "$(params.SKIP_PUSH)" = "true" ]; then
+          echo "Push skipped"
+          exit 0
+        fi
+
+        # Realiza o push da imagem para o registro
+        podman push --tls-verify=$(params.TLSVERIFY) \
+          $(params.IMAGE) docker://$(params.IMAGE)
+  workspaces:
+    - description: Workspace contendo o código-fonte a ser construído
+      name: source
+    - description: Workspace contendo o config.json para autenticação no Quay.io
+      name: dockerconfig
+      optional: true

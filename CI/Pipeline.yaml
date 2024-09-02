@@ -1,0 +1,87 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: springboot-java-pipeline
+  namespace: pipeline
+spec:
+  params:
+    - description: Nome da aplicação
+      name: APP_NAME
+      type: string
+    - description: URL do repositório Git
+      name: GIT_REPO
+      type: string
+    - default: main
+      description: Branch ou tag para checkout
+      name: GIT_REVISION
+      type: string
+    - description: Nome da imagem para construir e empurrar
+      name: IMAGE_NAME
+      type: string
+    - default: .
+      name: PATH_CONTEXT
+      type: string
+    - default: openjdk-17-ubi8
+      name: VERSION
+      type: string
+  tasks:
+    - name: fetch-repository
+      params:
+        - name: url
+          value: $(params.GIT_REPO)
+        - name: revision
+          value: $(params.GIT_REVISION)
+        - name: subdirectory
+          value: ''
+        - name: deleteExisting
+          value: 'true'
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: workspace
+    - name: build-jar
+      runAfter:
+        - fetch-repository
+      taskRef:
+        name: maven-1-15-0
+        kind: ClusterTask
+      params:
+        - name: GOALS
+          value: 
+            - clean
+            - package
+        - name: CONTEXT_DIR
+          value: demo-app
+      workspaces:
+        - name: source
+          workspace: workspace
+        - name: maven-settings
+          workspace: maven-settings 
+    - name: build-and-push-image
+      runAfter:
+        - build-jar
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE_NAME)
+        - name: CONTEXT
+          value: $(params.PATH_CONTEXT)
+        - name: DOCKERFILE
+          value: Containerfile/Containerfile 
+      taskRef:
+        kind: ClusterTask
+        name: buildah-1-15-0
+      workspaces:
+        - name: source
+          workspace: workspace
+        - name: dockerconfig
+          workspace: dockerconfig
+
+  workspaces:
+    - description: Workspace para persistir dados entre as tarefas
+      name: workspace
+    - description: Workspace contendo o config.json para autenticação no Quay.io
+      name: dockerconfig
+    - description: Workspace para configurações Maven, pode estar vazio
+      name: maven-settings
