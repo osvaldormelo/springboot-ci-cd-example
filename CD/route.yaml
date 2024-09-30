@@ -2,7 +2,6 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: spring-boot-app
-  namespace: demonstration
   uid: 2b50e03d-ba56-4b34-8376-4d7d6966a7b9
   resourceVersion: '257284'
   creationTimestamp: '2024-09-30T19:11:24Z'
@@ -12,18 +11,8 @@ metadata:
     app.kubernetes.io/instance: spring-boot-app
   annotations:
     openshift.io/host.generated: 'true'
-  managedFields:
-    - manager: openshift-router
-      operation: Update
-      apiVersion: route.openshift.io/v1
-      time: '2024-09-30T19:11:24Z'
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:status':
-          'f:ingress': {}
-      subresource: status
 spec:
-  host: spring-boot-app-demonstration.apps.cluster-pfkrw.pfkrw.sandbox1043.opentlc.com
+  host: spring-boot-app-teste.apps.cluster-pfkrw.pfkrw.sandbox1043.opentlc.com
   to:
     kind: Service
     name: spring-boot-app
@@ -33,7 +22,7 @@ spec:
   wildcardPolicy: None
 status:
   ingress:
-    - host: spring-boot-app-demonstration.apps.cluster-pfkrw.pfkrw.sandbox1043.opentlc.com
+    - host: spring-boot-app-teste.apps.cluster-pfkrw.pfkrw.sandbox1043.opentlc.com
       routerName: default
       conditions:
         - type: Admitted
