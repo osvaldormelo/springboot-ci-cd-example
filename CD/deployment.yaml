@@ -1,10 +1,6 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: '2'
-    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"spring-boot-app:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"spring-boot-app\")].image"}]'
-    openshift.io/generated-by: OpenShiftNewApp
   name: spring-boot-app
   labels:
     app: spring-boot-app
