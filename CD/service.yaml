@@ -2,9 +2,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: spring-boot-app
-  uid: b655b8f0-6f7c-46ec-a6cf-3b8647446411
-  resourceVersion: '252448'
-  creationTimestamp: '2024-09-30T19:03:48Z'
   labels:
     app: spring-boot-app
     app.kubernetes.io/component: spring-boot-app
@@ -12,9 +9,6 @@ metadata:
   annotations:
     openshift.io/generated-by: OpenShiftNewApp
 spec:
-  clusterIP: 172.30.232.222
-  ipFamilies:
-    - IPv4
   ports:
     - name: 8080-tcp
       protocol: TCP
@@ -25,11 +19,6 @@ spec:
       port: 8443
       targetPort: 8443
   internalTrafficPolicy: Cluster
-  clusterIPs:
-    - 172.30.232.222
-  type: ClusterIP
-  ipFamilyPolicy: SingleStack
-  sessionAffinity: None
   selector:
     deployment: spring-boot-app
 status:
