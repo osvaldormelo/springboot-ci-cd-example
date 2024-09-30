@@ -21,5 +21,3 @@ spec:
   internalTrafficPolicy: Cluster
   selector:
     deployment: spring-boot-app
-status:
-  loadBalancer: {}
