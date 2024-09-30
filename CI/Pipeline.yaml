@@ -24,6 +24,10 @@ spec:
     - default: openjdk-17-ubi8
       name: VERSION
       type: string
+    - default: TiagoAvelino
+      name: GIT_USER_NAME
+      type: string
+      description: git user name para realizar o push da nova tag
   tasks:
     - name: fetch-repository
       params:
@@ -77,7 +81,24 @@ spec:
           workspace: workspace
         - name: dockerconfig
           workspace: dockerconfig
-
+    - name: apply-label
+      runAfter:
+          - build-and-push-image
+      params:
+        - name: image
+          value: spring-boot-app@$(tasks.build-and-push-image.results.IMAGE_DIGEST)
+        - name: git_user_name
+          value: $(params.GIT_USER_NAME)
+        - name: git_user_email
+          value: tiago.avelino1997@gmail.com
+        - name: deleteExisting
+          value: 'true'
+      taskRef:
+        kind: Task
+        name: update-manifest
+      workspaces:
+        - name: output
+          workspace: workspace
   workspaces:
     - description: Workspace para persistir dados entre as tarefas
       name: workspace

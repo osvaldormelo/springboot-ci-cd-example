@@ -1,59 +1,122 @@
-apiVersion: tekton.dev/v1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: s2i-java-custom
-  namespace: pipeline
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: >
+      {"apiVersion":"tekton.dev/v1beta1","kind":"Task","metadata":{"annotations":{},"labels":{"app.kubernetes.io/instance":"globex-ui-pipeline"},"name":"update-manifest","namespace":"software-supply-chain"},"spec":{"description":"This
+      task updates the manifest for the current application to point to the
+      image tag created with the short commit.","params":[{"description":"Used
+      to tag the built
+      image.","name":"image","type":"string"},{"default":"main","description":"Target
+      branch to push
+      to","name":"target-branch","type":"string"},{"default":"Tekton
+      Pipeline","description":"Git user name for performing the push
+      operation.","name":"git_user_name","type":"string"},{"default":"tekton@tekton.com","description":"Git
+      user email for performing the push
+      operation.","name":"git_user_email","type":"string"},{"description":"File
+      in which the image configuration is
+      stored.","name":"configuration_file","type":"string"},{"description":"Repo
+      in which the image configuration is
+      stored.","name":"repository","type":"string"}],"steps":[{"image":"alpine/git:latest","name":"git","script":"#
+      Setting up the git config.\ngit config --global user.email
+      \"$(params.git_user_email)\"\ngit config --global user.name
+      \"$(params.git_user_name)\"\n# Checkout target branch to avoid the
+      detached HEAD state\nTMPDIR=$(mktemp -d)\ncd $TMPDIR\ngit clone
+      $(params.repository)\ncd secured-supply-chain-black-hat\ngit checkout
+      $(params.target-branch)\n# Set to the short commit value passed as
+      parameter.\n# Notice the enclosing \" to keep it as a string in the
+      resulting YAML.\nIMAGE=\\\"$(params.image)\\\"\nsed -i
+      \"s#\\(.*value:\\s*\\).*#\\1 ${IMAGE}#\" $(params.configuration_file)\ngit
+      add $(params.configuration_file)\ngit commit -m \"Automatically updated
+      manifest to point to image tag $IMAGE\"\ngit push origin
+      $(params.target-branch)      \n"}]}}
+  resourceVersion: '45775'
+  name: update-manifest
+  uid: 54758130-afa8-4983-bd92-12466d7b08e5
+  creationTimestamp: '2024-09-30T18:59:27Z'
+  generation: 1
+  managedFields:
+    - apiVersion: tekton.dev/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:kubectl.kubernetes.io/last-applied-configuration': {}
+          'f:labels':
+            .: {}
+            'f:app.kubernetes.io/instance': {}
+        'f:spec':
+          .: {}
+          'f:description': {}
+          'f:params': {}
+          'f:steps': {}
+      manager: argocd-application-controller
+      operation: Update
+      time: '2024-09-30T18:59:27Z'
+  namespace: software-supply-chain
+  labels:
+    app.kubernetes.io/instance: globex-ui-pipeline
 spec:
+  description: >-
+    This task updates the manifest for the current application to point to the
+    image tag created with the short commit.
   params:
-    - default: latest
-      name: VERSION
+    - description: Used to tag the built image.
+      name: image
       type: string
-    - default: .
-      name: PATH_CONTEXT
+    - default: main
+      description: Target branch to push to
+      name: target-branch
       type: string
-    - name: IMAGE
+    - default: Tekton Pipeline
+      description: Git user name for performing the push operation.
+      name: git_user_name
       type: string
-    - default: registry.redhat.io/ubi8/podman
-      name: BUILDER_IMAGE
+    - default: tekton@tekton.com
+      description: Git user email for performing the push operation.
+      name: git_user_email
       type: string
-    - default: 'true'
-      name: TLSVERIFY
+    - description: File in which the image configuration is stored.
+      name: configuration_file
       type: string
-    - default: 'false'
-      name: SKIP_PUSH
+    - description: Repo in which the image configuration is stored.
+      name: repository
       type: string
   steps:
-    - computeResources: {}
-      image: registry.access.redhat.com/ubi8/ubi-minimal
-      name: debug-dockerconfig
-      script: |
-        #!/bin/bash
-        echo "Listing contents of /workspace/dockerconfig:"
-        ls -la /workspace/dockerconfig
-    - computeResources: {}
-      image: $(params.BUILDER_IMAGE)
-      name: build-and-push
-      script: |
-        #!/bin/sh
-        # Aponta diretamente para o arquivo .dockerconfigjson
-        export DOCKER_CONFIG=$(workspaces.dockerconfig.path)
+    - image: 'alpine/git:latest'
+      name: git
+      resources: {}
+      script: >
+        # Setting up the git config.
 
-        # Constrói a imagem com podman
-        podman build --tls-verify=$(params.TLSVERIFY) \
-          -f /gen-source/Dockerfile.gen -t $(params.IMAGE) .
+        git config --global user.email "$(params.git_user_email)"
 
-        # Se a opção de pular o push estiver ativada, sai do script
-        if [ "$(params.SKIP_PUSH)" = "true" ]; then
-          echo "Push skipped"
-          exit 0
-        fi
+        git config --global user.name "$(params.git_user_name)"
 
-        # Realiza o push da imagem para o registro
-        podman push --tls-verify=$(params.TLSVERIFY) \
-          $(params.IMAGE) docker://$(params.IMAGE)
-  workspaces:
-    - description: Workspace contendo o código-fonte a ser construído
-      name: source
-    - description: Workspace contendo o config.json para autenticação no Quay.io
-      name: dockerconfig
-      optional: true
+        # Checkout target branch to avoid the detached HEAD state
+
+        TMPDIR=$(mktemp -d)
+
+        cd $TMPDIR
+
+        git clone $(params.repository)
+
+        cd secured-supply-chain-black-hat
+
+        git checkout $(params.target-branch)
+
+        # Set to the short commit value passed as parameter.
+
+        # Notice the enclosing " to keep it as a string in the resulting YAML.
+
+        IMAGE=\"$(params.image)\"
+
+        sed -i "s#\(.*value:\s*\).*#\1 ${IMAGE}#" $(params.configuration_file)
+
+        git add $(params.configuration_file)
+
+        git commit -m "Automatically updated manifest to point to image tag
+        $IMAGE"
+
+        git push origin $(params.target-branch)      
