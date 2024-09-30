@@ -1,0 +1,83 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: update-kustomize-repo
+  annotations:
+    tekton.dev/displayName: "Update Kustomize Git Repository"
+spec:
+  params:
+    - description: URL of the Git repository to update
+      name: gitRepositoryUrl
+      type: string
+    - default: argocd
+      description: Branch or Tag to push the update to
+      name: gitRepositoryRevision
+      type: string
+    - default: k8s/deployment.yaml
+      description: Path in the repository to work in.
+      name: gitPath
+      type: string
+    - description: The image tag to be written into the YAML
+      name: imageTag
+      type: string
+    - default: "true"
+      description: Log the commands used during execution
+      name: verbose
+      type: string
+  steps:
+    - image: "alpine/git:v2.26.2"
+      name: git-checkout
+      resources: {}
+      script: |
+        #!/usr/bin/env sh
+
+        if [[ "$(params.verbose)" == "true" ]] ; then
+          set -x
+          echo "**** Cloning $(params.gitRepositoryUrl) into $(pwd)"
+        fi
+
+        git clone "$(params.gitRepositoryUrl)" $(pwd)
+
+        git checkout "$(params.gitRepositoryRevision)"
+
+        git config --global user.email tiago.avelino1997@gmail.com
+
+        git config --global user.name TiagoAvelino
+
+        git pull origin develop
+      workingDir: $(workspaces.repository.path)
+    - env:
+        - name: IMAGE_TAG
+          value: $(params.imageTag)
+      image: "quay.io/dsanchor/ubi8-git:0.0.2"
+      name: update-yaml
+      resources: {}
+      script: |
+        #!/usr/bin/env sh
+        set -e
+        ls
+        if [[ "$(params.verbose)" == "true" ]] ; then
+          echo "**** Updating $(params.gitPath) image tag to $(params.imageTag)"
+        fi
+
+        sed -i 's|image:.*|image:\ $(params.imageTag)|' $(params.gitPath)
+      workingDir: $(workspaces.repository.path)
+    - image: "alpine/git:v2.26.2"
+      name: commit-push-changes
+      resources: {}
+      script: >
+        #!/usr/bin/env sh
+
+        git config --global user.email tiago.avelino1997@gmail.com
+
+        git config --global user.name TiagoAvelino
+
+        git add *
+
+        git commit --allow-empty -m "[OpenShift Pipeline] Updating
+        $(params.gitPath) image tag to $(params.imageTag)"
+
+        git push origin $(params.gitRepositoryRevision) -v
+      workingDir: $(workspaces.repository.path)
+  workspaces:
+    - name: repository
