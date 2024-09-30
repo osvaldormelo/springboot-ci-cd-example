@@ -2,9 +2,6 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: spring-boot-app
-  uid: 2b50e03d-ba56-4b34-8376-4d7d6966a7b9
-  resourceVersion: '257284'
-  creationTimestamp: '2024-09-30T19:11:24Z'
   labels:
     app: spring-boot-app
     app.kubernetes.io/component: spring-boot-app
@@ -12,7 +9,6 @@ metadata:
   annotations:
     openshift.io/host.generated: 'true'
 spec:
-  host: spring-boot-app-teste.apps.cluster-pfkrw.pfkrw.sandbox1043.opentlc.com
   to:
     kind: Service
     name: spring-boot-app
@@ -20,13 +16,3 @@ spec:
   port:
     targetPort: 8080-tcp
   wildcardPolicy: None
-status:
-  ingress:
-    - host: spring-boot-app-teste.apps.cluster-pfkrw.pfkrw.sandbox1043.opentlc.com
-      routerName: default
-      conditions:
-        - type: Admitted
-          status: 'True'
-          lastTransitionTime: '2024-09-30T19:11:24Z'
-      wildcardPolicy: None
-      routerCanonicalHostname: router-default.apps.cluster-pfkrw.pfkrw.sandbox1043.opentlc.com
