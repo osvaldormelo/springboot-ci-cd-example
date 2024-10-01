@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: spring-boot-app
-          image: echo $params_imageTag 
+          image: $params_imageTag 
           ports:
             - containerPort: 8080
               protocol: TCP
