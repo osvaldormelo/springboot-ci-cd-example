@@ -90,6 +90,21 @@ oc create namespace pipeline
 
 ### 3. Configuring CI with Tekton
 
+
+First we need create to secrets, one for image repository(Quay.io in this case) and another to Git commit in infraestructure repository(in this case, for demo purposes only we used the same).
+
+Go to Openshift Console, and access the Workloads session and click in secrets, after, click on create secret:
+
+![](/images/Secret.png)
+
+Select "image pull secret" type and put your access parameters and your secret name 'my-quay-secret' as the follow:
+
+![](/images/Secret2.png)
+
+Now, back to secrets screen, and select create secret again, but now you need select the 'source secret' option. And put your git reposotory data as follow:
+
+![](/images/Secret3.png)
+
 In the `CI` directory, apply the following files to set up the CI pipeline:
 
 1. **WorkspacePvc.yaml**: Creates the Persistent Volume Claim (PVC) for the pipeline workspace.
@@ -100,10 +115,14 @@ In the `CI` directory, apply the following files to set up the CI pipeline:
 ```sh
 oc project pipeline
 oc apply -f CI/WorkspacePvc.yaml -n pipeline
-oc apply -f CI/TaskCommit.yaml
+oc apply -f CI/TaskCommit.yaml -n pipeline
 oc apply -f CI/Pipeline.yaml -n pipeline
 oc apply -f CI/PipelineRun.yaml -n pipeline
 ```
+
+![](/images/PipelineCreated.png)
+
+
 
 ### 4. Configuring CD with OpenShift GitOps (ArgoCD)
 
