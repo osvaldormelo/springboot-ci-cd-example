@@ -1,0 +1,1067 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    chains.tekton.dev/signed: 'true'
+    pipeline.openshift.io/started-by: 'kube:admin'
+  resourceVersion: '490018'
+  name: springboot-java-pipeline-3jll4f
+  uid: f63ef6dc-6f97-416f-b612-c5d5f16e3aa2
+  creationTimestamp: '2024-10-01T00:57:44Z'
+  generation: 1
+  managedFields:
+    - apiVersion: tekton.dev/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:pipeline.openshift.io/started-by': {}
+          'f:labels':
+            .: {}
+            'f:tekton.dev/pipeline': {}
+        'f:spec':
+          .: {}
+          'f:params': {}
+          'f:pipelineRef':
+            .: {}
+            'f:name': {}
+          'f:status': {}
+          'f:taskRunTemplate':
+            .: {}
+            'f:serviceAccountName': {}
+          'f:timeouts':
+            .: {}
+            'f:pipeline': {}
+          'f:workspaces': {}
+      manager: Mozilla
+      operation: Update
+      time: '2024-10-01T00:57:44Z'
+    - apiVersion: tekton.dev/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            'f:chains.tekton.dev/signed': {}
+          'f:finalizers':
+            .: {}
+            'v:"chains.tekton.dev/pipelinerun"': {}
+      manager: openshift-pipelines-chains-controller
+      operation: Update
+      time: '2024-10-01T00:59:48Z'
+    - apiVersion: tekton.dev/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:status':
+          .: {}
+          'f:childReferences': {}
+          'f:completionTime': {}
+          'f:conditions': {}
+          'f:pipelineSpec':
+            .: {}
+            'f:params': {}
+            'f:tasks': {}
+            'f:workspaces': {}
+          'f:provenance':
+            .: {}
+            'f:featureFlags':
+              'f:ScopeWhenExpressionsToTask': {}
+              'f:SetSecurityContext': {}
+              'f:DisableCredsInit': {}
+              'f:DisableAffinityAssistant': {}
+              'f:EnableKeepPodOnCancel': {}
+              'f:VerificationNoMatchPolicy': {}
+              'f:DisableInlineSpec': {}
+              'f:RunningInEnvWithInjectedSidecars': {}
+              'f:EnableCELInWhenExpression': {}
+              'f:EnableArtifacts': {}
+              'f:EnableTektonOCIBundles': {}
+              .: {}
+              'f:MaxResultSize': {}
+              'f:AwaitSidecarReadiness': {}
+              'f:EnableProvenanceInStatus': {}
+              'f:EnableParamEnum': {}
+              'f:Coschedule': {}
+              'f:ResultExtractionMethod': {}
+              'f:EnableStepActions': {}
+              'f:EnableAPIFields': {}
+              'f:RequireGitSSHSecretKnownHosts': {}
+              'f:EnforceNonfalsifiability': {}
+              'f:SendCloudEventsForRuns': {}
+          'f:startTime': {}
+      manager: openshift-pipelines-controller
+      operation: Update
+      subresource: status
+      time: '2024-10-01T00:59:48Z'
+  namespace: pipeline
+  finalizers:
+    - chains.tekton.dev/pipelinerun
+  labels:
+    tekton.dev/pipeline: springboot-java-pipeline
+spec:
+  params:
+    - name: APP_NAME
+      value: springboot-app
+    - name: GIT_REPO
+      value: 'https://github.com/osvaldormelo/springboot-ci-cd-example.git'
+    - name: GIT_REVISION
+      value: main
+    - name: IMAGE_NAME
+      value: 'quay.io/rh_ee_tavelino/spring-boot-app:latest'
+    - name: PATH_CONTEXT
+      value: .
+    - name: VERSION
+      value: openjdk-17-ubi8
+  pipelineRef:
+    name: springboot-java-pipeline
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  timeouts:
+    pipeline: 1h0m0s
+  workspaces:
+    - name: workspace
+      persistentVolumeClaim:
+        claimName: tekton-workspace-pvc
+    - name: dockerconfig
+      secret:
+        secretName: my-quay-secret
+    - emptyDir: {}
+      name: maven-settings
+status:
+  childReferences:
+    - apiVersion: tekton.dev/v1
+      kind: TaskRun
+      name: springboot-java-pipeline-3jll4f-fetch-repository
+      pipelineTaskName: fetch-repository
+    - apiVersion: tekton.dev/v1
+      kind: TaskRun
+      name: springboot-java-pipeline-3jll4f-build-jar
+      pipelineTaskName: build-jar
+    - apiVersion: tekton.dev/v1
+      kind: TaskRun
+      name: springboot-java-pipeline-3jll4f-build-and-push-image
+      pipelineTaskName: build-and-push-image
+    - apiVersion: tekton.dev/v1
+      kind: TaskRun
+      name: springboot-java-pipeline-3jll4f-apply-label
+      pipelineTaskName: apply-label
+  completionTime: '2024-10-01T00:59:48Z'
+  conditions:
+    - lastTransitionTime: '2024-10-01T00:59:48Z'
+      message: 'Tasks Completed: 4 (Failed: 0, Cancelled 0), Skipped: 0'
+      reason: Succeeded
+      status: 'True'
+      type: Succeeded
+  pipelineSpec:
+    params:
+      - description: Nome da aplicação
+        name: APP_NAME
+        type: string
+      - description: URL do repositório Git
+        name: GIT_REPO
+        type: string
+      - default: main
+        description: Branch ou tag para checkout
+        name: GIT_REVISION
+        type: string
+      - description: Nome da imagem para construir e empurrar
+        name: IMAGE_NAME
+        type: string
+      - default: .
+        name: PATH_CONTEXT
+        type: string
+      - default: openjdk-17-ubi8
+        name: VERSION
+        type: string
+    tasks:
+      - name: fetch-repository
+        params:
+          - name: url
+            value: 'https://github.com/osvaldormelo/springboot-ci-cd-example.git'
+          - name: revision
+            value: main
+          - name: subdirectory
+            value: ''
+          - name: deleteExisting
+            value: 'true'
+        taskRef:
+          kind: ClusterTask
+          name: git-clone
+        workspaces:
+          - name: output
+            workspace: workspace
+        status:
+          completionTime: '2024-10-01T00:57:58Z'
+          conditions:
+            - lastTransitionTime: '2024-10-01T00:57:58Z'
+              message: All Steps have completed executing
+              reason: Succeeded
+              status: 'True'
+              type: Succeeded
+          podName: springboot-java-pipeline-3jll4f-fetch-repository-pod
+          provenance:
+            featureFlags:
+              MaxResultSize: 4096
+              AwaitSidecarReadiness: true
+              Coschedule: workspaces
+              ResultExtractionMethod: termination-message
+              EnableParamEnum: false
+              SendCloudEventsForRuns: false
+              EnforceNonfalsifiability: none
+              ScopeWhenExpressionsToTask: false
+              SetSecurityContext: false
+              DisableCredsInit: false
+              DisableAffinityAssistant: true
+              EnableStepActions: false
+              EnableAPIFields: beta
+              RequireGitSSHSecretKnownHosts: false
+              RunningInEnvWithInjectedSidecars: true
+              EnableKeepPodOnCancel: false
+              EnableTektonOCIBundles: false
+              VerificationNoMatchPolicy: ignore
+              EnableProvenanceInStatus: true
+              DisableInlineSpec: ''
+              EnableArtifacts: false
+              EnableCELInWhenExpression: false
+          results:
+            - name: commit
+              type: string
+              value: f7753b465da13394d807ea75ca203d1b766ca9a7
+            - name: committer-date
+              type: string
+              value: '1727743988'
+            - name: url
+              type: string
+              value: 'https://github.com/osvaldormelo/springboot-ci-cd-example.git'
+          startTime: '2024-10-01T00:57:44Z'
+          steps:
+            - container: step-clone
+              imageID: 'registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:539b019e2ff60c023c1b2d0c43f02859ef1e8c3718048be71c07e02af407c46a'
+              name: clone
+              terminated:
+                containerID: 'cri-o://5a0b850309bd9b1b5b23d257aa25a6db3106ac44ae36e2175d27ead441841322'
+                exitCode: 0
+                finishedAt: '2024-10-01T00:57:58Z'
+                message: '[{"key":"commit","value":"f7753b465da13394d807ea75ca203d1b766ca9a7","type":1},{"key":"committer-date","value":"1727743988","type":1},{"key":"url","value":"https://github.com/osvaldormelo/springboot-ci-cd-example.git","type":1}]'
+                reason: Completed
+                startedAt: '2024-10-01T00:57:57Z'
+              terminationReason: Completed
+          taskSpec:
+            description: |-
+              These Tasks are Git tasks to work with repositories used by other tasks in your Pipeline.
+              The git-clone Task will clone a repo from the provided url into the output Workspace. By default the repo will be cloned into the root of your Workspace. You can clone into a subdirectory by setting this Task's subdirectory param. This Task also supports sparse checkouts. To perform a sparse checkout, pass a list of comma separated directory patterns to this Task's sparseCheckoutDirectories param.
+            params:
+              - description: Repository URL to clone from.
+                name: url
+                type: string
+              - default: ''
+                description: 'Revision to checkout. (branch, tag, sha, ref, etc...)'
+                name: revision
+                type: string
+              - default: ''
+                description: Refspec to fetch before checking out revision.
+                name: refspec
+                type: string
+              - default: 'true'
+                description: Initialize and fetch git submodules.
+                name: submodules
+                type: string
+              - default: '1'
+                description: 'Perform a shallow clone, fetching only the most recent N commits.'
+                name: depth
+                type: string
+              - default: 'true'
+                description: Set the `http.sslVerify` global git config. Setting this to `false` is not advised unless you are sure that you trust your git remote.
+                name: sslVerify
+                type: string
+              - default: ca-bundle.crt
+                description: file name of mounted crt using ssl-ca-directory workspace. default value is ca-bundle.crt.
+                name: crtFileName
+                type: string
+              - default: ''
+                description: Subdirectory inside the `output` Workspace to clone the repo into.
+                name: subdirectory
+                type: string
+              - default: ''
+                description: Define the directory patterns to match or exclude when performing a sparse checkout.
+                name: sparseCheckoutDirectories
+                type: string
+              - default: 'true'
+                description: Clean out the contents of the destination directory if it already exists before cloning.
+                name: deleteExisting
+                type: string
+              - default: ''
+                description: HTTP proxy server for non-SSL requests.
+                name: httpProxy
+                type: string
+              - default: ''
+                description: HTTPS proxy server for SSL requests.
+                name: httpsProxy
+                type: string
+              - default: ''
+                description: Opt out of proxying HTTP/HTTPS requests.
+                name: noProxy
+                type: string
+              - default: 'true'
+                description: Log the commands that are executed during `git-clone`'s operation.
+                name: verbose
+                type: string
+              - default: 'registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:681dc67d2aa1dbecbf65ecd229c8b181dae533bf14b07543c1aeead36aed2198'
+                description: The image providing the git-init binary that this Task runs.
+                name: gitInitImage
+                type: string
+              - default: /home/git
+                description: |
+                  Absolute path to the user's home directory.
+                name: userHome
+                type: string
+            results:
+              - description: The precise commit SHA that was fetched by this Task.
+                name: commit
+                type: string
+              - description: The precise URL that was fetched by this Task.
+                name: url
+                type: string
+              - description: The epoch timestamp of the commit that was fetched by this Task.
+                name: committer-date
+                type: string
+            steps:
+              - computeResources: {}
+                env:
+                  - name: HOME
+                    value: /home/git
+                  - name: PARAM_URL
+                    value: 'https://github.com/osvaldormelo/springboot-ci-cd-example.git'
+                  - name: PARAM_REVISION
+                    value: main
+                  - name: PARAM_REFSPEC
+                  - name: PARAM_SUBMODULES
+                    value: 'true'
+                  - name: PARAM_DEPTH
+                    value: '1'
+                  - name: PARAM_SSL_VERIFY
+                    value: 'true'
+                  - name: PARAM_CRT_FILENAME
+                    value: ca-bundle.crt
+                  - name: PARAM_SUBDIRECTORY
+                  - name: PARAM_DELETE_EXISTING
+                    value: 'true'
+                  - name: PARAM_HTTP_PROXY
+                  - name: PARAM_HTTPS_PROXY
+                  - name: PARAM_NO_PROXY
+                  - name: PARAM_VERBOSE
+                    value: 'true'
+                  - name: PARAM_SPARSE_CHECKOUT_DIRECTORIES
+                  - name: PARAM_USER_HOME
+                    value: /home/git
+                  - name: WORKSPACE_OUTPUT_PATH
+                    value: /workspace/output
+                  - name: WORKSPACE_SSH_DIRECTORY_BOUND
+                    value: 'false'
+                  - name: WORKSPACE_SSH_DIRECTORY_PATH
+                  - name: WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND
+                    value: 'false'
+                  - name: WORKSPACE_BASIC_AUTH_DIRECTORY_PATH
+                  - name: WORKSPACE_SSL_CA_DIRECTORY_BOUND
+                    value: 'false'
+                  - name: WORKSPACE_SSL_CA_DIRECTORY_PATH
+                image: 'registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:681dc67d2aa1dbecbf65ecd229c8b181dae533bf14b07543c1aeead36aed2198'
+                name: clone
+                script: |
+                  #!/usr/bin/env sh
+                  set -eu
+
+                  if [ "${PARAM_VERBOSE}" = "true" ] ; then
+                    set -x
+                  fi
+
+                  if [ "${WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND}" = "true" ] ; then
+                    cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.git-credentials" "${PARAM_USER_HOME}/.git-credentials"
+                    cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.gitconfig" "${PARAM_USER_HOME}/.gitconfig"
+                    chmod 400 "${PARAM_USER_HOME}/.git-credentials"
+                    chmod 400 "${PARAM_USER_HOME}/.gitconfig"
+                  fi
+
+                  if [ "${WORKSPACE_SSH_DIRECTORY_BOUND}" = "true" ] ; then
+                    cp -R "${WORKSPACE_SSH_DIRECTORY_PATH}" "${PARAM_USER_HOME}"/.ssh
+                    chmod 700 "${PARAM_USER_HOME}"/.ssh
+                    chmod -R 400 "${PARAM_USER_HOME}"/.ssh/*
+                  fi
+
+                  if [ "${WORKSPACE_SSL_CA_DIRECTORY_BOUND}" = "true" ] ; then
+                     export GIT_SSL_CAPATH="${WORKSPACE_SSL_CA_DIRECTORY_PATH}"
+                     if [ "${PARAM_CRT_FILENAME}" != "" ] ; then
+                        export GIT_SSL_CAINFO="${WORKSPACE_SSL_CA_DIRECTORY_PATH}/${PARAM_CRT_FILENAME}"
+                     fi
+                  fi
+                  CHECKOUT_DIR="${WORKSPACE_OUTPUT_PATH}/${PARAM_SUBDIRECTORY}"
+
+                  cleandir() {
+                    # Delete any existing contents of the repo directory if it exists.
+                    #
+                    # We don't just "rm -rf ${CHECKOUT_DIR}" because ${CHECKOUT_DIR} might be "/"
+                    # or the root of a mounted volume.
+                    if [ -d "${CHECKOUT_DIR}" ] ; then
+                      # Delete non-hidden files and directories
+                      rm -rf "${CHECKOUT_DIR:?}"/*
+                      # Delete files and directories starting with . but excluding ..
+                      rm -rf "${CHECKOUT_DIR}"/.[!.]*
+                      # Delete files and directories starting with .. plus any other character
+                      rm -rf "${CHECKOUT_DIR}"/..?*
+                    fi
+                  }
+
+                  if [ "${PARAM_DELETE_EXISTING}" = "true" ] ; then
+                    cleandir || true
+                  fi
+
+                  test -z "${PARAM_HTTP_PROXY}" || export HTTP_PROXY="${PARAM_HTTP_PROXY}"
+                  test -z "${PARAM_HTTPS_PROXY}" || export HTTPS_PROXY="${PARAM_HTTPS_PROXY}"
+                  test -z "${PARAM_NO_PROXY}" || export NO_PROXY="${PARAM_NO_PROXY}"
+
+                  git config --global --add safe.directory "${WORKSPACE_OUTPUT_PATH}"
+                  /ko-app/git-init \
+                    -url="${PARAM_URL}" \
+                    -revision="${PARAM_REVISION}" \
+                    -refspec="${PARAM_REFSPEC}" \
+                    -path="${CHECKOUT_DIR}" \
+                    -sslVerify="${PARAM_SSL_VERIFY}" \
+                    -submodules="${PARAM_SUBMODULES}" \
+                    -depth="${PARAM_DEPTH}" \
+                    -sparseCheckoutDirectories="${PARAM_SPARSE_CHECKOUT_DIRECTORIES}"
+                  cd "${CHECKOUT_DIR}"
+                  RESULT_SHA="$(git rev-parse HEAD)"
+                  EXIT_CODE="$?"
+                  if [ "${EXIT_CODE}" != 0 ] ; then
+                    exit "${EXIT_CODE}"
+                  fi
+                  RESULT_COMMITTER_DATE="$(git log -1 --pretty=%ct)"
+                  printf "%s" "${RESULT_COMMITTER_DATE}" > "/tekton/results/committer-date"
+                  printf "%s" "${RESULT_SHA}" > "/tekton/results/commit"
+                  printf "%s" "${PARAM_URL}" > "/tekton/results/url"
+                securityContext:
+                  runAsNonRoot: true
+                  runAsUser: 65532
+            workspaces:
+              - description: The git repo will be cloned onto the volume backing this Workspace.
+                name: output
+              - description: |
+                  A .ssh directory with private key, known_hosts, config, etc. Copied to
+                  the user's home before git commands are executed. Used to authenticate
+                  with the git remote when performing the clone. Binding a Secret to this
+                  Workspace is strongly recommended over other volume types.
+                name: ssh-directory
+                optional: true
+              - description: |
+                  A Workspace containing a .gitconfig and .git-credentials file. These
+                  will be copied to the user's home before any git commands are run. Any
+                  other files in this Workspace are ignored. It is strongly recommended
+                  to use ssh-directory over basic-auth whenever possible and to bind a
+                  Secret to this Workspace over other volume types.
+                name: basic-auth
+                optional: true
+              - description: |
+                  A workspace containing CA certificates, this will be used by Git to
+                  verify the peer with when fetching or pushing over HTTPS.
+                name: ssl-ca-directory
+                optional: true
+          duration: 14s
+          reason: Succeeded
+      - name: build-jar
+        params:
+          - name: GOALS
+            value:
+              - clean
+              - package
+          - name: CONTEXT_DIR
+            value: demo-app
+        runAfter:
+          - fetch-repository
+        taskRef:
+          kind: ClusterTask
+          name: maven-1-15-0
+        workspaces:
+          - name: source
+            workspace: workspace
+          - name: maven-settings
+            workspace: maven-settings
+        status:
+          completionTime: '2024-10-01T00:58:43Z'
+          conditions:
+            - lastTransitionTime: '2024-10-01T00:58:43Z'
+              message: All Steps have completed executing
+              reason: Succeeded
+              status: 'True'
+              type: Succeeded
+          podName: springboot-java-pipeline-3jll4f-build-jar-pod
+          provenance:
+            featureFlags:
+              MaxResultSize: 4096
+              AwaitSidecarReadiness: true
+              Coschedule: workspaces
+              ResultExtractionMethod: termination-message
+              EnableParamEnum: false
+              SendCloudEventsForRuns: false
+              EnforceNonfalsifiability: none
+              ScopeWhenExpressionsToTask: false
+              SetSecurityContext: false
+              DisableCredsInit: false
+              DisableAffinityAssistant: true
+              EnableStepActions: false
+              EnableAPIFields: beta
+              RequireGitSSHSecretKnownHosts: false
+              RunningInEnvWithInjectedSidecars: true
+              EnableKeepPodOnCancel: false
+              EnableTektonOCIBundles: false
+              VerificationNoMatchPolicy: ignore
+              EnableProvenanceInStatus: true
+              DisableInlineSpec: ''
+              EnableArtifacts: false
+              EnableCELInWhenExpression: false
+          startTime: '2024-10-01T00:57:58Z'
+          steps:
+            - container: step-mvn-settings
+              imageID: 'registry.redhat.io/ubi8/ubi-minimal@sha256:f09190148fb3b34decef980fcaa88e5ca77c8fc8af7f0eb6cc10fb1a840372fa'
+              name: mvn-settings
+              terminated:
+                containerID: 'cri-o://414ddafc7dfe97ef16afe3a42599736c2a50dc6e97398d663a8751c89354c0a4'
+                exitCode: 0
+                finishedAt: '2024-10-01T00:58:15Z'
+                reason: Completed
+                startedAt: '2024-10-01T00:58:15Z'
+              terminationReason: Completed
+            - container: step-mvn-goals
+              imageID: 'registry.redhat.io/ubi8/openjdk-17@sha256:841b6e905397b41b0def990b26d5787237e67b35278ad07b4e574a5f78d24763'
+              name: mvn-goals
+              terminated:
+                containerID: 'cri-o://d9d001bd1da3b90bae9eaf0284ea2879ed97f20c7f1ac747c74e9d9a4429f9f7'
+                exitCode: 0
+                finishedAt: '2024-10-01T00:58:42Z'
+                reason: Completed
+                startedAt: '2024-10-01T00:58:15Z'
+              terminationReason: Completed
+          taskSpec:
+            description: This Task can be used to run a Maven build.
+            params:
+              - default: 'registry.redhat.io/ubi8/openjdk-17@sha256:e8cc2e476282b75d89c73057bfa713db22d72bdb2808d62d981a84c33beb2575'
+                description: Maven base image
+                name: MAVEN_IMAGE
+                type: string
+              - default:
+                  - package
+                description: maven goals to run
+                name: GOALS
+                type: array
+              - default: ''
+                description: The Maven repository mirror url
+                name: MAVEN_MIRROR_URL
+                type: string
+              - default: ''
+                description: The username for the server
+                name: SERVER_USER
+                type: string
+              - default: ''
+                description: The password for the server
+                name: SERVER_PASSWORD
+                type: string
+              - default: ''
+                description: The username for the proxy server
+                name: PROXY_USER
+                type: string
+              - default: ''
+                description: The password for the proxy server
+                name: PROXY_PASSWORD
+                type: string
+              - default: ''
+                description: Port number for the proxy server
+                name: PROXY_PORT
+                type: string
+              - default: ''
+                description: Proxy server Host
+                name: PROXY_HOST
+                type: string
+              - default: ''
+                description: Non proxy server host
+                name: PROXY_NON_PROXY_HOSTS
+                type: string
+              - default: http
+                description: Protocol for the proxy ie http or https
+                name: PROXY_PROTOCOL
+                type: string
+              - default: .
+                description: The context directory within the repository for sources on which we want to execute maven goals.
+                name: CONTEXT_DIR
+                type: string
+            steps:
+              - computeResources: {}
+                env:
+                  - name: HOME
+                    value: /tekton/home
+                image: 'registry.redhat.io/ubi8/ubi-minimal@sha256:f729a7f5685ea823e87ffd68aff988f2b8ff8d52126ade4e6de7c68088f28ebd'
+                name: mvn-settings
+                script: |
+                  #!/usr/bin/env bash
+
+                  [[ -f /workspace/maven-settings/settings.xml ]] && \
+                  echo 'using existing /workspace/maven-settings/settings.xml' && exit 0
+
+                  cat > /workspace/maven-settings/settings.xml <<EOF
+                  <settings>
+                    <servers>
+                      <!-- The servers added here are generated from environment variables. Don't change. -->
+                      <!-- ### SERVER's USER INFO from ENV ### -->
+                    </servers>
+                    <mirrors>
+                      <!-- The mirrors added here are generated from environment variables. Don't change. -->
+                      <!-- ### mirrors from ENV ### -->
+                    </mirrors>
+                    <proxies>
+                      <!-- The proxies added here are generated from environment variables. Don't change. -->
+                      <!-- ### HTTP proxy from ENV ### -->
+                    </proxies>
+                  </settings>
+                  EOF
+
+                  xml=""
+                  if [ -n "" -a -n "" ]; then
+                    xml="<proxy>\
+                      <id>genproxy</id>\
+                      <active>true</active>\
+                      <protocol>http</protocol>\
+                      <host></host>\
+                      <port></port>"
+                    if [ -n "" -a -n "" ]; then
+                      xml="$xml\
+                          <username></username>\
+                          <password></password>"
+                    fi
+                    if [ -n "" ]; then
+                      xml="$xml\
+                          <nonProxyHosts></nonProxyHosts>"
+                    fi
+                    xml="$xml\
+                        </proxy>"
+                    sed -i "s|<!-- ### HTTP proxy from ENV ### -->|$xml|" /workspace/maven-settings/settings.xml
+                  fi
+
+                  if [ -n "" -a -n "" ]; then
+                    xml="<server>\
+                      <id>serverid</id>"
+                    xml="$xml\
+                          <username></username>\
+                          <password></password>"
+                    xml="$xml\
+                        </server>"
+                    sed -i "s|<!-- ### SERVER's USER INFO from ENV ### -->|$xml|" /workspace/maven-settings/settings.xml
+                  fi
+
+                  if [ -n "" ]; then
+                    xml="    <mirror>\
+                      <id>mirror.default</id>\
+                      <url></url>\
+                      <mirrorOf>central</mirrorOf>\
+                    </mirror>"
+                    sed -i "s|<!-- ### mirrors from ENV ### -->|$xml|" /workspace/maven-settings/settings.xml
+                  fi
+                securityContext:
+                  runAsNonRoot: true
+                  runAsUser: 65532
+              - args:
+                  - '-s'
+                  - /workspace/maven-settings/settings.xml
+                  - clean
+                  - package
+                command:
+                  - /usr/bin/mvn
+                computeResources: {}
+                env:
+                  - name: HOME
+                    value: /tekton/home
+                image: 'registry.redhat.io/ubi8/openjdk-17@sha256:e8cc2e476282b75d89c73057bfa713db22d72bdb2808d62d981a84c33beb2575'
+                name: mvn-goals
+                securityContext:
+                  runAsNonRoot: true
+                  runAsUser: 65532
+                workingDir: /workspace/source/demo-app
+            workspaces:
+              - description: The workspace consisting of maven project.
+                name: source
+              - description: The workspace consisting of the custom maven settings provided by the user.
+                name: maven-settings
+          duration: 45s
+          reason: Succeeded
+      - name: build-and-push-image
+        params:
+          - name: IMAGE
+            value: 'quay.io/rh_ee_tavelino/spring-boot-app:latest'
+          - name: CONTEXT
+            value: .
+          - name: DOCKERFILE
+            value: Containerfile/Containerfile
+        runAfter:
+          - build-jar
+        taskRef:
+          kind: ClusterTask
+          name: buildah-1-15-0
+        workspaces:
+          - name: source
+            workspace: workspace
+          - name: dockerconfig
+            workspace: dockerconfig
+        status:
+          completionTime: '2024-10-01T00:59:23Z'
+          conditions:
+            - lastTransitionTime: '2024-10-01T00:59:23Z'
+              message: All Steps have completed executing
+              reason: Succeeded
+              status: 'True'
+              type: Succeeded
+          podName: springboot-java-pipeline-3jll4f-build-and-push-image-pod
+          provenance:
+            featureFlags:
+              MaxResultSize: 4096
+              AwaitSidecarReadiness: true
+              Coschedule: workspaces
+              ResultExtractionMethod: termination-message
+              EnableParamEnum: false
+              SendCloudEventsForRuns: false
+              EnforceNonfalsifiability: none
+              ScopeWhenExpressionsToTask: false
+              SetSecurityContext: false
+              DisableCredsInit: false
+              DisableAffinityAssistant: true
+              EnableStepActions: false
+              EnableAPIFields: beta
+              RequireGitSSHSecretKnownHosts: false
+              RunningInEnvWithInjectedSidecars: true
+              EnableKeepPodOnCancel: false
+              EnableTektonOCIBundles: false
+              VerificationNoMatchPolicy: ignore
+              EnableProvenanceInStatus: true
+              DisableInlineSpec: ''
+              EnableArtifacts: false
+              EnableCELInWhenExpression: false
+          results:
+            - name: IMAGE_DIGEST
+              type: string
+              value: 'sha256:d86a32d0b2d807a5a0f23aae17064bc328a07eb4a170196a2d5f6b3cf1a9ad6d'
+            - name: IMAGE_URL
+              type: string
+              value: 'quay.io/rh_ee_tavelino/spring-boot-app:latest'
+          startTime: '2024-10-01T00:58:43Z'
+          steps:
+            - container: step-build-and-push
+              imageID: 'registry.redhat.io/rhel8/buildah@sha256:9cf08506ffdabb2034332e028f8a23f200cac8dda6233b58d5dfdc5a03cbc322'
+              name: build-and-push
+              terminated:
+                containerID: 'cri-o://e094c4a79cc3e203864822b0edd1b373ca3f579f5603c79050087ef53ab81eeb'
+                exitCode: 0
+                finishedAt: '2024-10-01T00:59:23Z'
+                message: '[{"key":"IMAGE_DIGEST","value":"sha256:d86a32d0b2d807a5a0f23aae17064bc328a07eb4a170196a2d5f6b3cf1a9ad6d","type":1},{"key":"IMAGE_URL","value":"quay.io/rh_ee_tavelino/spring-boot-app:latest","type":1}]'
+                reason: Completed
+                startedAt: '2024-10-01T00:59:03Z'
+              terminationReason: Completed
+          taskSpec:
+            description: |-
+              Buildah task builds source into a container image and then pushes it to a container registry.
+              Buildah Task builds source into a container image using Project Atomic's Buildah build tool.It uses Buildah's support for building from Dockerfiles, using its buildah bud command.This command executes the directives in the Dockerfile to assemble a container image, then pushes that image to a container registry.
+            params:
+              - description: Reference of the image buildah will produce.
+                name: IMAGE
+                type: string
+              - default: 'registry.redhat.io/rhel8/buildah@sha256:aac6629389db17e99894c5bee0da01d4c8065d11d8c6f6e1602f9484290baa70'
+                description: The location of the buildah builder image.
+                name: BUILDER_IMAGE
+                type: string
+              - default: vfs
+                description: Set buildah storage driver
+                name: STORAGE_DRIVER
+                type: string
+              - default: ./Dockerfile
+                description: Path to the Dockerfile to build.
+                name: DOCKERFILE
+                type: string
+              - default: .
+                description: Path to the directory to use as context.
+                name: CONTEXT
+                type: string
+              - default: 'true'
+                description: Verify the TLS on the registry endpoint (for push/pull to a non-TLS registry)
+                name: TLSVERIFY
+                type: string
+              - default: oci
+                description: 'The format of the built container, oci or docker'
+                name: FORMAT
+                type: string
+              - default: ''
+                description: Extra parameters passed for the build command when building images.
+                name: BUILD_EXTRA_ARGS
+                type: string
+              - default: ''
+                description: Extra parameters passed for the push command when pushing images.
+                name: PUSH_EXTRA_ARGS
+                type: string
+              - default: 'false'
+                description: Skip pushing the built image
+                name: SKIP_PUSH
+                type: string
+            results:
+              - description: Digest of the image just built.
+                name: IMAGE_DIGEST
+                type: string
+              - description: Image repository where the built image would be pushed to
+                name: IMAGE_URL
+                type: string
+            steps:
+              - computeResources: {}
+                image: 'registry.redhat.io/rhel8/buildah@sha256:aac6629389db17e99894c5bee0da01d4c8065d11d8c6f6e1602f9484290baa70'
+                name: build-and-push
+                script: |
+                  ENTITLEMENT_VOLUME=""
+
+                  if [[ "false" == "true" ]]; then
+                    ENTITLEMENT_VOLUME="--volume /tmp/entitlement:/etc/pki/entitlement"
+                  fi
+
+                  buildah bud --storage-driver=vfs \
+                    $ENTITLEMENT_VOLUME  \
+                    --format=oci --tls-verify=true \
+                    -f Containerfile/Containerfile -t quay.io/rh_ee_tavelino/spring-boot-app:latest .
+
+                  [[ "false" == "true" ]] && echo "Push skipped" && exit 0
+
+                  if [[ "true" == "true" ]]; then
+
+                    # if config.json exists at workspace root, we use that
+                    if test -f "/workspace/dockerconfig/config.json"; then
+                      export DOCKER_CONFIG="/workspace/dockerconfig"
+
+                    # else we look for .dockerconfigjson at the root
+                    elif test -f "/workspace/dockerconfig/.dockerconfigjson"; then
+                      cp "/workspace/dockerconfig/.dockerconfigjson" "$HOME/.docker/config.json"
+                      export DOCKER_CONFIG="$HOME/.docker"
+
+                    # need to error out if neither files are present
+                    else
+                      echo "neither 'config.json' nor '.dockerconfigjson' found at workspace root"
+                      exit 1
+                    fi
+                  fi
+
+                  buildah --storage-driver=vfs push \
+                     --tls-verify=true \
+                    --digestfile /tmp/image-digest quay.io/rh_ee_tavelino/spring-boot-app:latest \
+                    docker://quay.io/rh_ee_tavelino/spring-boot-app:latest
+                  cat /tmp/image-digest | tee /tekton/results/IMAGE_DIGEST
+                  echo -n "quay.io/rh_ee_tavelino/spring-boot-app:latest" | tee /tekton/results/IMAGE_URL
+                securityContext:
+                  capabilities:
+                    add:
+                      - SETFCAP
+                volumeMounts:
+                  - mountPath: /var/lib/containers
+                    name: varlibcontainers
+                workingDir: /workspace/source
+            volumes:
+              - emptyDir: {}
+                name: varlibcontainers
+            workspaces:
+              - name: source
+              - description: An optional workspace that allows providing a .docker/config.json file for Buildah to access the container registry. The file should be placed at the root of the Workspace with name config.json or .dockerconfigjson.
+                name: dockerconfig
+                optional: true
+              - description: An optional workspace that allows providing the entitlement keys for Buildah to access subscription. The mounted workspace contains entitlement.pem and entitlement-key.pem.
+                mountPath: /tmp/entitlement
+                name: rhel-entitlement
+                optional: true
+          duration: 40s
+          reason: Succeeded
+      - name: apply-label
+        params:
+          - name: imageTag
+            value: $(tasks.build-and-push-image.results.IMAGE_URL)@$(tasks.build-and-push-image.results.IMAGE_DIGEST)
+          - name: gitRepositoryUrl
+            value: 'https://github.com/osvaldormelo/springboot-ci-cd-example.git'
+          - name: verbose
+            value: 'true'
+        runAfter:
+          - build-and-push-image
+        taskRef:
+          kind: Task
+          name: update-repo
+        workspaces:
+          - name: repository
+            workspace: workspace
+        status:
+          completionTime: '2024-10-01T00:59:48Z'
+          conditions:
+            - lastTransitionTime: '2024-10-01T00:59:48Z'
+              message: All Steps have completed executing
+              reason: Succeeded
+              status: 'True'
+              type: Succeeded
+          podName: springboot-java-pipeline-3jll4f-apply-label-pod
+          provenance:
+            featureFlags:
+              MaxResultSize: 4096
+              AwaitSidecarReadiness: true
+              Coschedule: workspaces
+              ResultExtractionMethod: termination-message
+              EnableParamEnum: false
+              SendCloudEventsForRuns: false
+              EnforceNonfalsifiability: none
+              ScopeWhenExpressionsToTask: false
+              SetSecurityContext: false
+              DisableCredsInit: false
+              DisableAffinityAssistant: true
+              EnableStepActions: false
+              EnableAPIFields: beta
+              RequireGitSSHSecretKnownHosts: false
+              RunningInEnvWithInjectedSidecars: true
+              EnableKeepPodOnCancel: false
+              EnableTektonOCIBundles: false
+              VerificationNoMatchPolicy: ignore
+              EnableProvenanceInStatus: true
+              DisableInlineSpec: ''
+              EnableArtifacts: false
+              EnableCELInWhenExpression: false
+          startTime: '2024-10-01T00:59:23Z'
+          steps:
+            - container: step-git-checkout
+              imageID: 'docker.io/alpine/git@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f'
+              name: git-checkout
+              terminated:
+                containerID: 'cri-o://d3893d260fdcae8b14c378ff647f3a4ecb18ff4d2b356ffab690bb60ac1ad2c7'
+                exitCode: 0
+                finishedAt: '2024-10-01T00:59:46Z'
+                reason: Completed
+                startedAt: '2024-10-01T00:59:46Z'
+              terminationReason: Completed
+            - container: step-update-yaml
+              imageID: 'quay.io/dsanchor/ubi8-git@sha256:182db7c879c06c1fd36a39a679a5aaaf558db780260c26aca765ca31814f8b7d'
+              name: update-yaml
+              terminated:
+                containerID: 'cri-o://daf3b33df98cd02dd7f751727ac75bb2407fb3867d2e573cbeecb095ce3d5725'
+                exitCode: 0
+                finishedAt: '2024-10-01T00:59:47Z'
+                reason: Completed
+                startedAt: '2024-10-01T00:59:47Z'
+              terminationReason: Completed
+            - container: step-commit-push-changes
+              imageID: 'docker.io/alpine/git@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f'
+              name: commit-push-changes
+              terminated:
+                containerID: 'cri-o://f040944b3c3e21a1711117c73df62149f0e6d1788c0d4ea07d12e0df7039ddbb'
+                exitCode: 0
+                finishedAt: '2024-10-01T00:59:47Z'
+                reason: Completed
+                startedAt: '2024-10-01T00:59:47Z'
+              terminationReason: Completed
+          taskSpec:
+            params:
+              - description: URL of the Git repository to update
+                name: gitRepositoryUrl
+                type: string
+              - default: main
+                description: Branch or Tag to push the update to
+                name: gitRepositoryRevision
+                type: string
+              - default: CD/deployment.yaml
+                description: Path in the repository to work in.
+                name: gitPath
+                type: string
+              - description: The image tag to be written into the YAML
+                name: imageTag
+                type: string
+              - default: 'true'
+                description: Log the commands used during execution
+                name: verbose
+                type: string
+            steps:
+              - computeResources: {}
+                image: 'alpine/git:v2.26.2'
+                name: git-checkout
+                script: |
+                  #!/usr/bin/env sh
+
+                  if [[ "true" == "true" ]] ; then
+                    set -x
+                    echo "**** Cloning https://github.com/osvaldormelo/springboot-ci-cd-example.git into $(pwd)"
+                  fi
+
+                  git clone "https://github.com/osvaldormelo/springboot-ci-cd-example.git" $(pwd)
+
+                  git checkout "main"
+
+                  git config --global user.email tiago.avelino1997@gmail.com
+
+                  git config --global user.name TiagoAvelino
+
+                  git pull origin main
+                workingDir: /workspace/repository
+              - computeResources: {}
+                env:
+                  - name: IMAGE_TAG
+                    value: 'quay.io/rh_ee_tavelino/spring-boot-app:latest@sha256:d86a32d0b2d807a5a0f23aae17064bc328a07eb4a170196a2d5f6b3cf1a9ad6d'
+                image: 'quay.io/dsanchor/ubi8-git:0.0.2'
+                name: update-yaml
+                script: |
+                  #!/usr/bin/env sh
+                  set -e
+                  ls
+                  if [[ "true" == "true" ]] ; then
+                    echo "**** Updating CD/deployment.yaml image tag to quay.io/rh_ee_tavelino/spring-boot-app:latest@sha256:d86a32d0b2d807a5a0f23aae17064bc328a07eb4a170196a2d5f6b3cf1a9ad6d"
+                  fi
+                  params_imageTag=$(echo "quay.io/rh_ee_tavelino/spring-boot-app:latest@sha256:d86a32d0b2d807a5a0f23aae17064bc328a07eb4a170196a2d5f6b3cf1a9ad6d" | sed 's/:latest//') 
+                  echo $params_imageTag
+                  echo "funciona"
+
+                  sed -i 's|image:.*|image:\ echo $params_imageTag |' CD/deployment.yaml
+                workingDir: /workspace/repository
+              - computeResources: {}
+                image: 'alpine/git:v2.26.2'
+                name: commit-push-changes
+                script: |
+                  #!/usr/bin/env sh
+                  git config --global user.email tiago.avelino1997@gmail.com
+                  git config --global user.name TiagoAvelino
+                  git add *
+                  git commit --allow-empty -m "[OpenShift Pipeline] Updating CD/deployment.yaml image tag to quay.io/rh_ee_tavelino/spring-boot-app:latest@sha256:d86a32d0b2d807a5a0f23aae17064bc328a07eb4a170196a2d5f6b3cf1a9ad6d"
+                  git push origin main -v
+                workingDir: /workspace/repository
+            workspaces:
+              - name: repository
+          duration: 25s
+          reason: Succeeded
+    workspaces:
+      - description: Workspace para persistir dados entre as tarefas
+        name: workspace
+      - description: Workspace contendo o config.json para autenticação no Quay.io
+        name: dockerconfig
+      - description: 'Workspace para configurações Maven, pode estar vazio'
+        name: maven-settings
+  provenance:
+    featureFlags:
+      MaxResultSize: 4096
+      AwaitSidecarReadiness: true
+      Coschedule: workspaces
+      ResultExtractionMethod: termination-message
+      EnableParamEnum: false
+      SendCloudEventsForRuns: false
+      EnforceNonfalsifiability: none
+      ScopeWhenExpressionsToTask: false
+      SetSecurityContext: false
+      DisableCredsInit: false
+      DisableAffinityAssistant: true
+      EnableStepActions: false
+      EnableAPIFields: beta
+      RequireGitSSHSecretKnownHosts: false
+      RunningInEnvWithInjectedSidecars: true
+      EnableKeepPodOnCancel: false
+      EnableTektonOCIBundles: false
+      VerificationNoMatchPolicy: ignore
+      EnableProvenanceInStatus: true
+      DisableInlineSpec: ''
+      EnableArtifacts: false
+      EnableCELInWhenExpression: false
+  startTime: '2024-10-01T00:57:44Z'
