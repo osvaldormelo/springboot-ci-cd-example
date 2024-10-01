@@ -32,7 +32,7 @@ To run this demo, ensure you have:
 
 ### 1. Installing the Operators
 
-Install the following operators on OpenShift:
+Install the following operators on OpenShift Hub cluster or in main cluster:
 
 - **OpenShift Pipelines Operator**: To use Tekton.
 - **Red Hat OpenShift GitOps Operator**: To use ArgoCD.
@@ -40,6 +40,22 @@ Install the following operators on OpenShift:
 You can install these operators via the OpenShift UI or using `oc` commands:
 
 Installing with Openshift UI:
+
+From Openshift Operator Hub Search for Red Hat Openshift GitOps Operator and install it:
+
+![](/images/GitOpsOperator.png)
+
+Install with default options and wait for this screen appears:
+
+![](/images/GitOpsOperator2.png)
+
+Now we need install Openshift Pipelines Operator, back to Operator Hub and search for Red Hat Openshift Pipelines Operator and install it:
+
+![](/images/PipelinesOperator.png)
+
+Again, install with default options and wait for this screen appears:
+
+![](/images/PipelinesOperator2.png)
 
 Installing with `oc` commands:
 ```sh
@@ -54,13 +70,23 @@ oc apply -f https://operatorhub.io/path/to/openshift-gitops-operator.yaml
 
 Create the following namespaces for this project:
 
-- **spring-boot-app**: For the Spring Boot application.
+- **spring-boot-app-dev**: For the Development environment of Spring Boot application.
+- **spring-boot-app-hml**: For the Stage environment of Spring Boot application.
+- **spring-boot-app-prd**: For the Production environment of Spring Boot application.
 - **pipeline**: For the CI pipeline.
 
+Note: 
+In the case of installation in different clusters (one for each environment), the application namespaces must be created in the clusters corresponding to the environments.
+
+Execute this commands:
 ```sh
-oc create namespace spring-boot-app
+oc create namespace spring-boot-app-dev
+oc create namespace spring-boot-app-hml
+oc create namespace spring-boot-app-prd
 oc create namespace pipeline
 ```
+
+![](/images/Namespaces.png)
 
 ### 3. Configuring CI with Tekton
 
@@ -72,7 +98,9 @@ In the `CI` directory, apply the following files to set up the CI pipeline:
 4. **PipelineRun.yaml**: Runs the defined pipeline.
 
 ```sh
+oc project pipeline
 oc apply -f CI/WorkspacePvc.yaml -n pipeline
+oc apply -f CI/TaskCommit.yaml
 oc apply -f CI/Pipeline.yaml -n pipeline
 oc apply -f CI/PipelineRun.yaml -n pipeline
 ```
