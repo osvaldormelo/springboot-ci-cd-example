@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: update-kustomize-repo
+  name: update-repo
   annotations:
     tekton.dev/displayName: "Update Kustomize Git Repository"
 spec:
@@ -9,11 +9,11 @@ spec:
     - description: URL of the Git repository to update
       name: gitRepositoryUrl
       type: string
-    - default: argocd
+    - default: main
       description: Branch or Tag to push the update to
       name: gitRepositoryRevision
       type: string
-    - default: k8s/deployment.yaml
+    - default: CD/deployment.yaml
       description: Path in the repository to work in.
       name: gitPath
       type: string
@@ -44,7 +44,7 @@ spec:
 
         git config --global user.name TiagoAvelino
 
-        git pull origin develop
+        git pull origin main
       workingDir: $(workspaces.repository.path)
     - env:
         - name: IMAGE_TAG
@@ -59,8 +59,11 @@ spec:
         if [[ "$(params.verbose)" == "true" ]] ; then
           echo "**** Updating $(params.gitPath) image tag to $(params.imageTag)"
         fi
+        params_imageTag=$(echo "$(params.imageTag)" | sed 's/:latest//') 
+        echo $params_imageTag
+        echo "funciona"
 
-        sed -i 's|image:.*|image:\ $(params.imageTag)|' $(params.gitPath)
+        sed -i 's|image:.*|image:\ echo $params_imageTag |' $(params.gitPath)
       workingDir: $(workspaces.repository.path)
     - image: "alpine/git:v2.26.2"
       name: commit-push-changes

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: springboot-java-pipelinerun
+  name: springboot-java-pipelinerun2
 spec:
   pipelineRef:
     name: springboot-java-pipeline
