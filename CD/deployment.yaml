@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: spring-boot-app
-          image: quay.io/rhn_support_omelo/spring-boot-app@sha256:0576a5656aad518c203177f4c455ca969285068ab31c62fc7d7afe67d4e04a04
+          image: quay.io/rh_ee_tavelino/spring-boot-app@sha256:3c033f1fd9820122f1f2f4dcbe047ffde5cec359633f968f2876cebfeb56b209
           ports:
             - containerPort: 8080
               protocol: TCP
